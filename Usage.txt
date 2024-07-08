@@ -1,0 +1,40 @@
+# Fit and predict with logistic regression
+log_reg = LogisticRegression(random_state=42)
+log_reg.fit(X_train_scaled, y_train)
+y_pred = log_reg.predict(X_test_scaled)
+
+# Calculate and plot confusion matrix
+conf_matrix = confusion_matrix(y_test, y_pred)
+plt.figure(figsize=(8, 4))
+sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=['No AR', 'AR'], yticklabels=['No AR', 'AR'])
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix')
+plt.show()
+
+# Calculate total cost with optimal threshold
+optimal_cost, cm = calculate_costs(y_test, best_model_proba, optimal_threshold)
+
+# Compare costs
+labels = ['With Model', 'Without Model']
+costs = [optimal_cost, labor_cost_without_model]
+plt.bar(labels, costs, color=['skyblue', 'orange'])
+plt.ylabel('Total Cost (EUR)')
+plt.title('Business Impact')
+plt.show()
+
+# Cost vs. Threshold Plot
+costs = []
+thresholds = np.arange(0.0, 1.0, 0.01)
+for threshold in thresholds:
+    total_cost, _ = calculate_costs(y_test, best_model_proba, threshold)
+    costs.append(total_cost)
+
+plt.figure(figsize=(8, 6))
+plt.plot(thresholds, costs, color='blue', label='Total Cost')
+plt.axvline(x=optimal_threshold, color='red', linestyle='--', label=f'Optimal Threshold ({optimal_threshold})')
+plt.xlabel('Threshold')
+plt.ylabel('Total Cost (EUR)')
+plt.title('Total Cost vs. Threshold')
+plt.legend(loc='upper right')
+plt.show()
